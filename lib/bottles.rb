@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+require 'erb'
+
 class Bottles
 
   def song
@@ -5,32 +8,32 @@ class Bottles
   end
 
   def verses(starting, ending)
-    starting.downto(ending).map {|i| verse(i)}.join("\n")
+    verses = Array.new
+    return traverseVerses(starting, ending, verses).join("\n");
   end
 
   def verse(number)
-    case number
-    when 0
-      "No more bottles of beer on the wall, " +
-      "no more bottles of beer.\n" +
-      "Go to the store and buy some more, " +
-      "99 bottles of beer on the wall.\n"
-    when 1
-      "1 bottle of beer on the wall, " +
-      "1 bottle of beer.\n" +
-      "Take it down and pass it around, " +
-      "no more bottles of beer on the wall.\n"
-    when 2
-      "2 bottles of beer on the wall, " +
-      "2 bottles of beer.\n" +
-      "Take one down and pass it around, " +
-      "1 bottle of beer on the wall.\n"
+    @numBottles = number
+
+    if File.exist?('./verse' + number.to_s + '.erb')
+      template = File.read('./verse' + number.to_s + '.erb')
     else
-      "#{number} bottles of beer on the wall, " +
-      "#{number} bottles of beer.\n" +
-      "Take one down and pass it around, " +
-      "#{number-1} bottles of beer on the wall.\n"
+      template = File.read('./verse.erb')
     end
+
+    return ERB.new(template, 0).result(binding)
   end
+
+  private
+    def traverseVerses(starting, ending, verses)
+      # insert validation here
+      verses << verse(starting)
+
+      if starting != ending
+        traverseVerses(starting - 1, ending, verses)
+      end
+
+      return verses
+    end
 
 end
